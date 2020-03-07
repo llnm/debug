@@ -140,11 +140,28 @@ function setup(env) {
 		return false;
 	}
 
-	function extend(namespace, delimiter) {
+	function _extend(namespace, delimiter) {
 		const newDebug = createDebug(this.namespace + (typeof delimiter === 'undefined' ? ':' : delimiter) + namespace);
 		newDebug.log = this.log;
 		return newDebug;
 	}
+	
+	function extend(namespace, delimiter) {
+		let cached;
+		createDebug.instances.some((item) => {
+			if(item.namespace === (this.namespace + (typeof delimiter === 'undefined' ? ':' : delimiter) + namespace)) {
+				cached = item;
+				return true;
+			}
+			return false;
+		});
+	
+		if(cached) {
+			return cached;
+		}
+	
+		return _extend.call(this, namespace, delimiter);
+	}	
 
 	/**
 	* Enables a debug mode by namespaces. This can include modes
